@@ -1,0 +1,10 @@
+.idea/
+.gradle/
+/app/src/main/libs/
+/app/src/main/obj/
+/app/build/
+/app/gen/
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
