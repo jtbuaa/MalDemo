@@ -19,37 +19,6 @@ public class Activity1 extends Activity {
     String name = "activity1 ";
     Context context;
 
-    private Location mLocation;
-    private LocationManager mLocationManager;
-    private LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location l) {
-            Log.d("============", "onLocationChanged");
-            mLocation = l;
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
-    private void updateLocation() {
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Intent intent = new Intent("jt.action.locationChange");
-        intent.setClass(context, LocationReceiver.class);
-        PendingIntent pintent = PendingIntent.getBroadcast(this, 111, intent, 0);
-        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +32,6 @@ public class Activity1 extends Activity {
                 Log.d(TAG, name + "start service");
                 Intent intent = new Intent(context, MyLocationService.class);
                 startService(intent);
-                //updateLocation();
             }
         });
         this.setTitle(name);

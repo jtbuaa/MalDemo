@@ -53,9 +53,11 @@ public class MyLocationService extends Service {
 
     private void updateLocation() {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, mLocationListener);
         Intent intent = new Intent("jt.action.locationChange");
         intent.setClass(getApplicationContext(), LocationReceiver.class);
         PendingIntent pintent = PendingIntent.getBroadcast(this, 111, intent, 0);
+        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
         mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
     }
 }
