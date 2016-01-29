@@ -2,6 +2,7 @@
 package mal.demo;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +22,7 @@ public class Activity1 extends Activity {
     Context mContext;
 
     private LocationManager mLocationManager;
+    private AlarmManager mAlarmManager;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,31 +30,50 @@ public class Activity1 extends Activity {
         mContext = this;
         setContentView(R.layout.main);
         setTitle(name);
+
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        final int triggerAtTime = (int) (SystemClock.elapsedRealtime() + 20 * 1000);
+        final int interval = 60 * 1000;
+
+        Intent intent = new Intent("jt.action.locationChange");
+        intent.setClass(getApplicationContext(), LocationReceiver.class);
+        final PendingIntent pIntentBroadCast = PendingIntent.getBroadcast(mContext, 111, intent, 0);
+
+        intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClass(mContext, Activity1.class);
+        final PendingIntent pIntentActivity = PendingIntent.getActivity(mContext, 111, intent, 0);
+
+        intent = new Intent(mContext, MyLocationService.class);
+        final PendingIntent pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
 
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.btn1:
-                        Intent intent = new Intent("jt.action.locationChange");
-                        intent.setClass(getApplicationContext(), LocationReceiver.class);
-                        PendingIntent pintent = PendingIntent.getBroadcast(mContext, 111, intent, 0);
                         // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentBroadCast);
                         break;
                     case R.id.btn2:
-                        intent = new Intent(Intent.ACTION_MAIN);
-                        intent.setClass(mContext, Activity1.class);
-                        pintent = PendingIntent.getActivity(mContext, 111, intent, 0);
                         // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentActivity);
                         break;
                     case R.id.btn3:
-                        intent = new Intent(mContext, MyLocationService.class);
-                        pintent = PendingIntent.getService(mContext, 111, intent, 0);
                         // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentService);
+                    case R.id.btn4:
+                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                triggerAtTime, interval, pIntentBroadCast);
+                        break;
+                    case R.id.btn5:
+                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                triggerAtTime, interval, pIntentActivity);
+                        break;
+                    case R.id.btn6:
+                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                triggerAtTime, interval, pIntentService);
                         break;
                 }
             }
@@ -62,6 +84,12 @@ public class Activity1 extends Activity {
         btn2.setOnClickListener(listener);
         Button btn3 = (Button) findViewById(R.id.btn3);
         btn3.setOnClickListener(listener);
+        Button btn4 = (Button) findViewById(R.id.btn4);
+        btn4.setOnClickListener(listener);
+        Button btn5 = (Button) findViewById(R.id.btn5);
+        btn5.setOnClickListener(listener);
+        Button btn6 = (Button) findViewById(R.id.btn6);
+        btn6.setOnClickListener(listener);
     }
 
     @Override
