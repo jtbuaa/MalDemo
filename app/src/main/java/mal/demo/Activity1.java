@@ -60,6 +60,8 @@ public class Activity1 extends Activity {
         btn1.setOnClickListener(listener);
         Button btn2 = (Button) findViewById(R.id.btn2);
         btn2.setOnClickListener(listener);
+        Button btn3 = (Button) findViewById(R.id.btn3);
+        btn3.setOnClickListener(listener);
     }
 
     @Override

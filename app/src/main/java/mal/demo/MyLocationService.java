@@ -18,7 +18,6 @@ public class MyLocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null)
             super.onStartCommand(intent, flags, startId);
-
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.setClass(getApplicationContext(), Activity1.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
