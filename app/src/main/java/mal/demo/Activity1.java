@@ -17,24 +17,49 @@ import android.widget.Button;
 public class Activity1 extends Activity {
     String TAG = "================";
     String name = "activity1 ";
-    Context context;
+    Context mContext;
 
+    private LocationManager mLocationManager;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, name + "onCreate() executed");
-        context = this;
+        mContext = this;
         setContentView(R.layout.main);
-        Button btn = (Button) findViewById(R.id.btn);
-        btn.setOnClickListener(new OnClickListener() {
+        setTitle(name);
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, name + "start service");
-                Intent intent = new Intent(context, MyLocationService.class);
-                startService(intent);
+                switch (v.getId()) {
+                    case R.id.btn1:
+                        Intent intent = new Intent("jt.action.locationChange");
+                        intent.setClass(getApplicationContext(), LocationReceiver.class);
+                        PendingIntent pintent = PendingIntent.getBroadcast(mContext, 111, intent, 0);
+                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        break;
+                    case R.id.btn2:
+                        intent = new Intent(Intent.ACTION_MAIN);
+                        intent.setClass(mContext, Activity1.class);
+                        pintent = PendingIntent.getActivity(mContext, 111, intent, 0);
+                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        break;
+                    case R.id.btn3:
+                        intent = new Intent(mContext, MyLocationService.class);
+                        pintent = PendingIntent.getService(mContext, 111, intent, 0);
+                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pintent);
+                        break;
+                }
             }
-        });
-        this.setTitle(name);
+        };
+        Button btn1 = (Button) findViewById(R.id.btn1);
+        btn1.setOnClickListener(listener);
+        Button btn2 = (Button) findViewById(R.id.btn2);
+        btn2.setOnClickListener(listener);
     }
 
     @Override
