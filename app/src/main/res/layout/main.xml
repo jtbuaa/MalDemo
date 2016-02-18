@@ -4,33 +4,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/btn1"
-        android:text="broadcast by location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn2"
+    <CheckBox
+        android:id="@+id/cbx1"
         android:text="activity by location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn3"
+    <CheckBox
+        android:id="@+id/cbx2"
+        android:text="broadcast by location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <CheckBox
+        android:id="@+id/cbx3"
         android:text="service by location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn4"
-        android:text="broadcast by alarm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn5"
+    <CheckBox
+        android:id="@+id/cbx4"
         android:text="activity by alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn6"
+    <CheckBox
+        android:id="@+id/cbx5"
+        android:text="broadcast by alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <CheckBox
+        android:id="@+id/cbx6"
         android:text="service by alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
