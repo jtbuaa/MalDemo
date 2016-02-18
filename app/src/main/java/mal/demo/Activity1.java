@@ -84,6 +84,7 @@ public class Activity1 extends Activity {
                         } else {
                             mLocationManager.removeUpdates(pIntentService);
                         }
+                        break;
                     case R.id.cbx4:
                         editor.putBoolean("key4", cbx.isChecked());
                         if (cbx.isChecked()) {
