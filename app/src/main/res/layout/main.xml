@@ -34,5 +34,10 @@
         android:text="service by alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    <CheckBox
+        android:id="@+id/cbx7"
+        android:text="by account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

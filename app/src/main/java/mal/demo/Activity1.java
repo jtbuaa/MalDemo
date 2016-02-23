@@ -1,6 +1,9 @@
 
 package mal.demo;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -15,12 +18,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
-public class Activity1 extends Activity {
+public class Activity1 extends Activity implements OnAccountsUpdateListener {
     String TAG = "================";
     String name = "activity1 ";
     Context mContext;
-    CheckBox cbx1, cbx2, cbx3, cbx4, cbx5, cbx6;
+    CheckBox cbx1, cbx2, cbx3, cbx4, cbx5, cbx6, cbx7;
     private SharedPreferences mPrefs;
 
     private LocationManager mLocationManager;
@@ -112,6 +116,14 @@ public class Activity1 extends Activity {
                             mAlarmManager.cancel(pIntentService);
                         }
                         break;
+                    case R.id.cbx7:
+                        editor.putBoolean("key7", cbx.isChecked());
+                        if (cbx.isChecked()) {
+                            AccountManager.get(mContext).addOnAccountsUpdatedListener(Activity1.this, null, false);
+                        } else {
+                            AccountManager.get(mContext).removeOnAccountsUpdatedListener(Activity1.this);
+                        }
+                        break;
                 }
                 editor.commit();
             }
@@ -128,6 +140,8 @@ public class Activity1 extends Activity {
         cbx5.setOnClickListener(listener);
         cbx6 = (CheckBox) findViewById(R.id.cbx6);
         cbx6.setOnClickListener(listener);
+        cbx7 = (CheckBox) findViewById(R.id.cbx7);
+        cbx7.setOnClickListener(listener);
         if (savedInstanceState != null) {
             cbx1.setChecked(savedInstanceState.getBoolean("key1", false));
             cbx2.setChecked(savedInstanceState.getBoolean("key2", false));
@@ -135,6 +149,7 @@ public class Activity1 extends Activity {
             cbx4.setChecked(savedInstanceState.getBoolean("key4", false));
             cbx5.setChecked(savedInstanceState.getBoolean("key5", false));
             cbx6.setChecked(savedInstanceState.getBoolean("key6", false));
+            cbx7.setChecked(savedInstanceState.getBoolean("key7", false));
         } else {
             cbx1.setChecked(mPrefs.getBoolean("key1", false));
             cbx2.setChecked(mPrefs.getBoolean("key2", false));
@@ -142,7 +157,12 @@ public class Activity1 extends Activity {
             cbx4.setChecked(mPrefs.getBoolean("key4", false));
             cbx5.setChecked(mPrefs.getBoolean("key5", false));
             cbx6.setChecked(mPrefs.getBoolean("key6", false));
+            cbx7.setChecked(mPrefs.getBoolean("key7", false));
         }
+    }
+
+    public void onAccountsUpdated(Account[] a) {
+        Toast.makeText(mContext, "account update", Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -196,6 +216,7 @@ public class Activity1 extends Activity {
         outState.putBoolean("key4", cbx4.isChecked());
         outState.putBoolean("key5", cbx5.isChecked());
         outState.putBoolean("key6", cbx6.isChecked());
+        outState.putBoolean("key7", cbx7.isChecked());
         super.onSaveInstanceState(outState);
     }
 
