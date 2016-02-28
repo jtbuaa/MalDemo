@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -21,6 +22,9 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Activity1 extends Activity implements OnAccountsUpdateListener {
     private String TAG = "================";
@@ -36,6 +40,8 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
         "service by alarm",
         "by account",
     };
+    private List<MalMethod> mMethods = new ArrayList<MalMethod>();
+    private MalAdapter mAdapter;
     private SharedPreferences mPrefs;
 
     private LocationManager mLocationManager;
@@ -67,27 +73,28 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
         intent = new Intent(mContext, MyLocationService.class);
         final PendingIntent pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
 
-        mMalList = (ListView) findViewById(R.id.mal_list);
-        mMalList.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_checked, MALS));
-        mMalList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         if (savedInstanceState != null) {
-            for (int i = 0; i < mMalList.getChildCount(); i++) {
-                boolean isChecked = savedInstanceState.getBoolean("key" + i, false);
-                ((CheckedTextView) mMalList.getChildAt(i)).setChecked(isChecked);
+            for (int i = 0; i < MALS.length; i++) {
+                boolean isChecked = savedInstanceState.getBoolean(MALS[i], false);
+                mMethods.add(new MalMethod(MALS[i], isChecked));
             }
         } else {
-            for (int i = 0; i < mMalList.getChildCount(); i++) {
-                boolean isChecked = mPrefs.getBoolean("key" + i, false);
-                ((CheckedTextView) mMalList.getChildAt(i)).setChecked(isChecked);
+            for (int i = 0; i < MALS.length; i++) {
+                boolean isChecked = mPrefs.getBoolean(MALS[i], false);
+                mMethods.add(new MalMethod(MALS[i], isChecked));
             }
         }
+        mAdapter = new MalAdapter(this, android.R.layout.simple_list_item_checked, mMethods);
+        mMalList = (ListView) findViewById(R.id.mal_list);
+        mMalList.setAdapter(mAdapter);
+        mMalList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         mMalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
                 boolean isChecked = ((CheckedTextView) view).isChecked();
+                mAdapter.getItem(index).checked = isChecked;
                 SharedPreferences.Editor editor = mPrefs.edit();
-                editor.putBoolean("key" + index, isChecked);
+                editor.putBoolean(mAdapter.getItem(index).name, isChecked);
                 editor.commit();
                 switch (index) {
                     case 0:
@@ -199,8 +206,8 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, name + "onSaveInstanceState() executed");
-        for (int i = 0; i < mMalList.getChildCount(); i++) {
-            outState.putBoolean("key" + i, ((CheckedTextView) mMalList.getChildAt(i)).isChecked());
+        for (int i = 0; i < mAdapter.getCount(); i++) {
+            outState.putBoolean(mAdapter.getItem(i).name, mAdapter.getItem(i).checked);
         }
         super.onSaveInstanceState(outState);
     }
