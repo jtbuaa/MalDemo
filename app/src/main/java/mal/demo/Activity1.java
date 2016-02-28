@@ -16,15 +16,26 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.CheckBox;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class Activity1 extends Activity implements OnAccountsUpdateListener {
-    String TAG = "================";
-    String name = "activity1 ";
-    Context mContext;
-    CheckBox cbx1, cbx2, cbx3, cbx4, cbx5, cbx6, cbx7;
+    private String TAG = "================";
+    private String name = "activity1 ";
+    private Context mContext;
+    private ListView mMalList;
+    private static final String[] MALS = new String[] {
+        "activity by location",
+        "broadcast by location",
+        "service by location",
+        "activity by alarm",
+        "broadcast by alarm",
+        "service by alarm",
+        "by account",
+    };
     private SharedPreferences mPrefs;
 
     private LocationManager mLocationManager;
@@ -56,109 +67,87 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
         intent = new Intent(mContext, MyLocationService.class);
         final PendingIntent pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
 
-        OnClickListener listener = new OnClickListener() {
+        mMalList = (ListView) findViewById(R.id.mal_list);
+        mMalList.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_checked, MALS));
+        mMalList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        if (savedInstanceState != null) {
+            for (int i = 0; i < mMalList.getChildCount(); i++) {
+                boolean isChecked = savedInstanceState.getBoolean("key" + i, false);
+                ((CheckedTextView) mMalList.getChildAt(i)).setChecked(isChecked);
+            }
+        } else {
+            for (int i = 0; i < mMalList.getChildCount(); i++) {
+                boolean isChecked = mPrefs.getBoolean("key" + i, false);
+                ((CheckedTextView) mMalList.getChildAt(i)).setChecked(isChecked);
+            }
+        }
+        mMalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                CheckBox cbx = (CheckBox)v;
+            public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
+                boolean isChecked = ((CheckedTextView) view).isChecked();
                 SharedPreferences.Editor editor = mPrefs.edit();
-                switch (cbx.getId()) {
-                    case R.id.cbx1:
-                        editor.putBoolean("key1", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                editor.putBoolean("key" + index, isChecked);
+                editor.commit();
+                switch (index) {
+                    case 0:
+                        if (isChecked) {
                             // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
                             mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentActivity);
                         } else {
                             mLocationManager.removeUpdates(pIntentActivity);
                         }
                         break;
-                    case R.id.cbx2:
-                        editor.putBoolean("key2", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 1:
+                        if (isChecked) {
                             // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
                             mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentBroadCast);
                         } else {
                             mLocationManager.removeUpdates(pIntentBroadCast);
                         }
                         break;
-                    case R.id.cbx3:
-                        editor.putBoolean("key3", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 2:
+                        if (isChecked) {
                             // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
                             mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentService);
                         } else {
                             mLocationManager.removeUpdates(pIntentService);
                         }
                         break;
-                    case R.id.cbx4:
-                        editor.putBoolean("key4", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 3:
+                        if (isChecked) {
                             mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                                     triggerAtTime, interval, pIntentActivity);
                         } else {
                             mAlarmManager.cancel(pIntentActivity);
                         }
                         break;
-                    case R.id.cbx5:
-                        editor.putBoolean("key5", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 4:
+                        if (isChecked) {
                             mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                                     triggerAtTime, interval, pIntentBroadCast);
                         } else {
                             mAlarmManager.cancel(pIntentBroadCast);
                         }
                         break;
-                    case R.id.cbx6:
-                        editor.putBoolean("key6", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 5:
+                        if (isChecked) {
                             mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                                    triggerAtTime, interval, pIntentService);
+                                    triggerAtTime, interval, pIntentBroadCast);
                         } else {
-                            mAlarmManager.cancel(pIntentService);
+                            mAlarmManager.cancel(pIntentBroadCast);
                         }
                         break;
-                    case R.id.cbx7:
-                        editor.putBoolean("key7", cbx.isChecked());
-                        if (cbx.isChecked()) {
+                    case 6:
+                        if (isChecked) {
                             AccountManager.get(mContext).addOnAccountsUpdatedListener(Activity1.this, null, false);
                         } else {
                             AccountManager.get(mContext).removeOnAccountsUpdatedListener(Activity1.this);
                         }
                         break;
                 }
-                editor.commit();
             }
-        };
-        cbx1 = (CheckBox) findViewById(R.id.cbx1);
-        cbx1.setOnClickListener(listener);
-        cbx2 = (CheckBox) findViewById(R.id.cbx2);
-        cbx2.setOnClickListener(listener);
-        cbx3 = (CheckBox) findViewById(R.id.cbx3);
-        cbx3.setOnClickListener(listener);
-        cbx4 = (CheckBox) findViewById(R.id.cbx4);
-        cbx4.setOnClickListener(listener);
-        cbx5 = (CheckBox) findViewById(R.id.cbx5);
-        cbx5.setOnClickListener(listener);
-        cbx6 = (CheckBox) findViewById(R.id.cbx6);
-        cbx6.setOnClickListener(listener);
-        cbx7 = (CheckBox) findViewById(R.id.cbx7);
-        cbx7.setOnClickListener(listener);
-        if (savedInstanceState != null) {
-            cbx1.setChecked(savedInstanceState.getBoolean("key1", false));
-            cbx2.setChecked(savedInstanceState.getBoolean("key2", false));
-            cbx3.setChecked(savedInstanceState.getBoolean("key3", false));
-            cbx4.setChecked(savedInstanceState.getBoolean("key4", false));
-            cbx5.setChecked(savedInstanceState.getBoolean("key5", false));
-            cbx6.setChecked(savedInstanceState.getBoolean("key6", false));
-            cbx7.setChecked(savedInstanceState.getBoolean("key7", false));
-        } else {
-            cbx1.setChecked(mPrefs.getBoolean("key1", false));
-            cbx2.setChecked(mPrefs.getBoolean("key2", false));
-            cbx3.setChecked(mPrefs.getBoolean("key3", false));
-            cbx4.setChecked(mPrefs.getBoolean("key4", false));
-            cbx5.setChecked(mPrefs.getBoolean("key5", false));
-            cbx6.setChecked(mPrefs.getBoolean("key6", false));
-            cbx7.setChecked(mPrefs.getBoolean("key7", false));
-        }
+        });
     }
 
     public void onAccountsUpdated(Account[] a) {
@@ -210,13 +199,9 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, name + "onSaveInstanceState() executed");
-        outState.putBoolean("key1", cbx1.isChecked());
-        outState.putBoolean("key2", cbx2.isChecked());
-        outState.putBoolean("key3", cbx3.isChecked());
-        outState.putBoolean("key4", cbx4.isChecked());
-        outState.putBoolean("key5", cbx5.isChecked());
-        outState.putBoolean("key6", cbx6.isChecked());
-        outState.putBoolean("key7", cbx7.isChecked());
+        for (int i = 0; i < mMalList.getChildCount(); i++) {
+            outState.putBoolean("key" + i, ((CheckedTextView) mMalList.getChildAt(i)).isChecked());
+        }
         super.onSaveInstanceState(outState);
     }
 
