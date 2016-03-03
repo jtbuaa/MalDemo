@@ -25,23 +25,13 @@ public class MalAdapter extends ArrayAdapter<MalMethod> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MalMethod malMethod = getItem(position);
-        CheckedTextView methodView = (CheckedTextView) convertView;
-        if (methodView == null) {
-            methodView = (CheckedTextView) mInflater.inflate(mResourceId, null, false);
-            /*methodView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    CheckedTextView textView = ((CheckedTextView) view);
-                    boolean checked = textView.isChecked();
-                    malMethod.checked = checked;
-                    textView.toggle();
-                }
-            });*/
+        if (convertView == null) {
+            convertView = mInflater.inflate(mResourceId, null);
         }
-
+        CheckedTextView methodView = (CheckedTextView) convertView.findViewById(R.id.list_row_ctv);
         methodView.setText(malMethod.name);
         methodView.setChecked(malMethod.checked);
 
-        return methodView;
+        return convertView;
     }
 }

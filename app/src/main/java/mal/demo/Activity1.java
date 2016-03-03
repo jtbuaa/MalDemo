@@ -84,14 +84,16 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
                 mMethods.add(new MalMethod(MALS[i], isChecked));
             }
         }
-        mAdapter = new MalAdapter(this, android.R.layout.simple_list_item_checked, mMethods);
+        mAdapter = new MalAdapter(this, R.layout.list_raw, mMethods);
         mMalList = (ListView) findViewById(R.id.mal_list);
         mMalList.setAdapter(mAdapter);
         mMalList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         mMalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-                boolean isChecked = ((CheckedTextView) view).isChecked();
+                CheckedTextView ctv = (CheckedTextView) view.findViewById(R.id.list_row_ctv);
+                boolean isChecked = !ctv.isChecked();
+                ctv.setChecked(isChecked);
                 mAdapter.getItem(index).checked = isChecked;
                 SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putBoolean(mAdapter.getItem(index).name, isChecked);
