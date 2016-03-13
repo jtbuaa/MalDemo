@@ -7,11 +7,18 @@ import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneNumberUtils;
@@ -63,6 +70,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
 
     private LocationManager mLocationManager;
     private AlarmManager mAlarmManager;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +97,11 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
 
         intent = new Intent(mContext, MyLocationService.class);
         final PendingIntent pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
+
+        mServiceComponent = new ComponentName(this, TestJobService.class);
+        Intent startServiceIntent = new Intent(mContext, TestJobService.class);
+        startServiceIntent.putExtra("messenger", new Messenger(mHandler));
+        startService(startServiceIntent);
 
         if (savedInstanceState != null) {
             for (int i = 0; i < MALS.length; i++) {
@@ -162,6 +175,12 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
                         AccountManager.get(mContext).addOnAccountsUpdatedListener(Activity1.this, null, false);
                     } else {
                         AccountManager.get(mContext).removeOnAccountsUpdatedListener(Activity1.this);
+                    }
+                } else if (BY_JOB_SCHEDULER.equals(MALS[index])) {
+                    if (isChecked) {
+                        scheduleJob();
+                    } else {
+                        cancelAllJobs();
                     }
                 }
             }
@@ -290,5 +309,84 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     protected void onRestoreInstanceState(Bundle inState) {
         Log.d(TAG, name + "onRestoreInstanceState() executed");
         super.onRestoreInstanceState(inState);
+    }
+
+    ComponentName mServiceComponent;
+    /** Service object to interact scheduled jobs. */
+    TestJobService mTestService;
+
+    private static int kJobId = 0;
+    public static final int MSG_UNCOLOUR_START = 0;
+    public static final int MSG_UNCOLOUR_STOP = 1;
+    public static final int MSG_SERVICE_OBJ = 2;
+    Handler mHandler = new Handler(/* default looper */) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_UNCOLOUR_START:
+                    //mShowStartView.setBackgroundColor(defaultColor);
+                    break;
+                case MSG_UNCOLOUR_STOP:
+                    //mShowStopView.setBackgroundColor(defaultColor);
+                    break;
+                case MSG_SERVICE_OBJ:
+                    mTestService = (TestJobService) msg.obj;
+                    mTestService.setUiCallback(Activity1.this);
+            }
+        }
+    };
+
+    private boolean ensureTestService() {
+        if (mTestService == null) {
+            Toast.makeText(Activity1.this, "Service null, never got callback?",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    public void scheduleJob() {
+        if (!ensureTestService()) {
+            return;
+        }
+
+        JobInfo.Builder builder = new JobInfo.Builder(kJobId++, mServiceComponent);
+
+        boolean requiresUnmetered = false;
+        boolean requiresAnyConnectivity = true;
+        if (requiresUnmetered) {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        } else if (requiresAnyConnectivity) {
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+        }
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
+
+        mTestService.scheduleJob(builder.build());
+    }
+
+    public void cancelAllJobs() {
+        JobScheduler tm =
+                (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        tm.cancelAll();
+    }
+
+    /**
+     * UI onclick listener to call jobFinished() in our service.
+     */
+    public void finishJob(View v) {
+        if (!ensureTestService()) {
+            return;
+        }
+        mTestService.callJobFinished();
+        Toast.makeText(mContext, "job canceled", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onReceivedStartJob(JobParameters params) {
+        Toast.makeText(mContext, "Executing: " + params.getJobId() + " " + params.getExtras(), Toast.LENGTH_SHORT).show();
+    }
+
+    public void onReceivedStopJob() {
+        Toast.makeText(mContext, "job stop", Toast.LENGTH_SHORT).show();
     }
 }
