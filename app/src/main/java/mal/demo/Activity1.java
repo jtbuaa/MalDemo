@@ -71,6 +71,11 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     private LocationManager mLocationManager;
     private AlarmManager mAlarmManager;
 
+    private int triggerAtTime;
+    private int interval;
+    private PendingIntent pIntentBroadCast;
+    private PendingIntent pIntentActivity;
+    private PendingIntent pIntentService;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,19 +89,19 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        final int triggerAtTime = (int) (SystemClock.elapsedRealtime() + 20 * 1000);
-        final int interval = 60 * 1000;
+        triggerAtTime = (int) (SystemClock.elapsedRealtime() + 20 * 1000);
+        interval = 60 * 1000;
 
         Intent intent = new Intent("jt.action.locationChange");
         intent.setClass(getApplicationContext(), LocationReceiver.class);
-        final PendingIntent pIntentBroadCast = PendingIntent.getBroadcast(mContext, 111, intent, 0);
+        pIntentBroadCast = PendingIntent.getBroadcast(mContext, 111, intent, 0);
 
         intent = new Intent(Intent.ACTION_MAIN);
         intent.setClass(mContext, Activity1.class);
-        final PendingIntent pIntentActivity = PendingIntent.getActivity(mContext, 111, intent, 0);
+        pIntentActivity = PendingIntent.getActivity(mContext, 111, intent, 0);
 
         intent = new Intent(mContext, MyLocationService.class);
-        final PendingIntent pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
+        pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
 
         mServiceComponent = new ComponentName(this, TestJobService.class);
         Intent startServiceIntent = new Intent(mContext, TestJobService.class);
@@ -128,63 +133,75 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
                 SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putBoolean(mAdapter.getItem(index).name, isChecked);
                 editor.commit();
-                if (A_BY_LOCATION.equals(MALS[index])) {
-                    if (isChecked) {
-                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentActivity);
-                    } else {
-                        mLocationManager.removeUpdates(pIntentActivity);
-                    }
-                } else if (B_BY_LOCATION.equals(MALS[index])) {
-                    if (isChecked) {
-                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentBroadCast);
-                    } else {
-                        mLocationManager.removeUpdates(pIntentBroadCast);
-                    }
-                } else if (S_BY_LOCATION.equals(MALS[index])) {
-                    if (isChecked) {
-                        // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
-                        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentService);
-                    } else {
-                        mLocationManager.removeUpdates(pIntentService);
-                    }
-                } else if (A_BY_ALARM.equals(MALS[index])) {
-                    if (isChecked) {
-                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                                triggerAtTime, interval, pIntentActivity);
-                    } else {
-                        mAlarmManager.cancel(pIntentActivity);
-                    }
-                } else if (B_BY_ALARM.equals(MALS[index])) {
-                    if (isChecked) {
-                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                                triggerAtTime, interval, pIntentBroadCast);
-                    } else {
-                        mAlarmManager.cancel(pIntentBroadCast);
-                    }
-                } else if (S_BY_ALARM.equals(MALS[index])) {
-                    if (isChecked) {
-                        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                                triggerAtTime, interval, pIntentBroadCast);
-                    } else {
-                        mAlarmManager.cancel(pIntentBroadCast);
-                    }
-                } else if (BY_ACCOUNT.equals(MALS[index])) {
-                    if (isChecked) {
-                        AccountManager.get(mContext).addOnAccountsUpdatedListener(Activity1.this, null, false);
-                    } else {
-                        AccountManager.get(mContext).removeOnAccountsUpdatedListener(Activity1.this);
-                    }
-                } else if (BY_JOB_SCHEDULER.equals(MALS[index])) {
-                    if (isChecked) {
-                        scheduleJob();
-                    } else {
-                        cancelAllJobs();
-                    }
-                }
+                updateListener(index, isChecked);
             }
         });
+        for (int i = 0; i < mAdapter.getCount(); i++) {
+            updateListener(i, mAdapter.getItem(i).checked);
+        }
+    }
+
+    private void updateListener(int index, boolean isChecked) {
+        if (A_BY_LOCATION.equals(MALS[index])) {
+            if (isChecked) {
+                // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentActivity);
+            } else {
+                mLocationManager.removeUpdates(pIntentActivity);
+            }
+        } else if (B_BY_LOCATION.equals(MALS[index])) {
+            if (isChecked) {
+                // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentBroadCast);
+            } else {
+                mLocationManager.removeUpdates(pIntentBroadCast);
+            }
+        } else if (S_BY_LOCATION.equals(MALS[index])) {
+            if (isChecked) {
+                // should not set minTime and minDistance to 0 which will drain the battery. just for demo here.
+                mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, pIntentService);
+            } else {
+                mLocationManager.removeUpdates(pIntentService);
+            }
+        } else if (A_BY_ALARM.equals(MALS[index])) {
+            if (isChecked) {
+                mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        triggerAtTime, interval, pIntentActivity);
+            } else {
+                mAlarmManager.cancel(pIntentActivity);
+            }
+        } else if (B_BY_ALARM.equals(MALS[index])) {
+            if (isChecked) {
+                mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        triggerAtTime, interval, pIntentBroadCast);
+            } else {
+                mAlarmManager.cancel(pIntentBroadCast);
+            }
+        } else if (S_BY_ALARM.equals(MALS[index])) {
+            if (isChecked) {
+                mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        triggerAtTime, interval, pIntentBroadCast);
+            } else {
+                mAlarmManager.cancel(pIntentBroadCast);
+            }
+        } else if (BY_ACCOUNT.equals(MALS[index])) {
+            if (isChecked) {
+                AccountManager.get(mContext).addOnAccountsUpdatedListener(Activity1.this, null, false);
+            } else {
+                AccountManager.get(mContext).removeOnAccountsUpdatedListener(Activity1.this);
+            }
+        } else if (BY_JOB_SCHEDULER.equals(MALS[index])) {
+            if (isChecked) {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scheduleJob();
+                    }
+                }, 1000);
+            } else {
+                cancelAllJobs();
+            }
+        }
     }
 
     //http://stackoverflow.com/questions/12335642/create-pdu-for-android-that-works-with-smsmessage-createfrompdu-gsm-3gpp
