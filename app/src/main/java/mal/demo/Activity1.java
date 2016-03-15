@@ -52,6 +52,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     public static final String FAKE_SMS = "test fake sms";
     private static final String BY_TELEPHONY = "by telephony?";
     private static final String BY_JOB_SCHEDULER = "by job Scheduler";
+    public static final String BY_NOTIFICATION_LISTENER = "by notification listener";
     private static final String[] MALS = new String[] {
             A_BY_LOCATION,
             B_BY_LOCATION,
@@ -63,6 +64,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
             FAKE_SMS,
             BY_TELEPHONY,
             BY_JOB_SCHEDULER,
+            BY_NOTIFICATION_LISTENER,
     };
     private List<MalMethod> mMethods = new ArrayList<MalMethod>();
     private MalAdapter mAdapter;
@@ -100,7 +102,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
         intent.setClass(mContext, Activity1.class);
         pIntentActivity = PendingIntent.getActivity(mContext, 111, intent, 0);
 
-        intent = new Intent(mContext, MyLocationService.class);
+        intent = new Intent(mContext, TestLocationService.class);
         pIntentService = PendingIntent.getService(mContext, 111, intent, 0);
 
         mServiceComponent = new ComponentName(this, TestJobService.class);

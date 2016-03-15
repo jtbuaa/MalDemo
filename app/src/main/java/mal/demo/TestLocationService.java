@@ -4,8 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class MyLocationService extends Service {
-    public MyLocationService() {
+public class TestLocationService extends Service {
+    public TestLocationService() {
     }
 
     @Override

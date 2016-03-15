@@ -39,14 +39,19 @@
         </receiver>
 
         <service
-            android:name=".MyLocationService"
-            android:process=":MyLocationService"
+            android:name=".TestLocationService"
+            android:process=":TestLocationService"
             android:exported="true"/>
         <service
             android:name=".TestJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
-
+        <service android:name=".TestNotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
