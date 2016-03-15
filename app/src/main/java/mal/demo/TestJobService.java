@@ -77,10 +77,7 @@ public class TestJobService extends JobService {
         if (mActivity != null) {
             mActivity.onReceivedStartJob(params);
         } else {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setClass(getApplicationContext(), Activity1.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            Activity1.startActivity(getApplicationContext(), null);
         }
         Log.i(TAG, "on start job: " + params.getJobId());
         return true;
@@ -93,10 +90,7 @@ public class TestJobService extends JobService {
         if (mActivity != null) {
             mActivity.onReceivedStopJob();
         } else {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setClass(getApplicationContext(), Activity1.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            Activity1.startActivity(getApplicationContext(), null);
         }
         Log.i(TAG, "on stop job: " + params.getJobId());
         return true;

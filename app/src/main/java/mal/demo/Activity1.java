@@ -53,6 +53,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     private static final String BY_TELEPHONY = "by telephony?";
     private static final String BY_JOB_SCHEDULER = "by job Scheduler";
     public static final String BY_NOTIFICATION_LISTENER = "by notification listener";
+    public static final String BY_NFC = "by nfc";
     private static final String[] MALS = new String[] {
             A_BY_LOCATION,
             B_BY_LOCATION,
@@ -65,6 +66,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
             BY_TELEPHONY,
             BY_JOB_SCHEDULER,
             BY_NOTIFICATION_LISTENER,
+            BY_NFC,
     };
     private List<MalMethod> mMethods = new ArrayList<MalMethod>();
     private MalAdapter mAdapter;
@@ -203,6 +205,20 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
             } else {
                 cancelAllJobs();
             }
+        }
+    }
+
+    public static void startActivity(Context context, String type) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean isChecked = false;
+        if (type != null) {
+            isChecked = prefs.getBoolean(type, false);
+        }
+        if (isChecked || type == null) {
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.setClass(context, Activity1.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
         }
     }
 

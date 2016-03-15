@@ -1,5 +1,7 @@
 <resources>
 
     <string name="app_name">MalDemo</string>
+    <string name="HCEService_hce">HCEService_hce</string>
+    <string name="CMBPaymentGroup">CMBPaymentGroup</string>
 
 </resources>
