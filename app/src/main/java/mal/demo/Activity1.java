@@ -37,6 +37,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import mal.demo.basicsyncadapter.SyncUtils;
+
 public class Activity1 extends Activity implements OnAccountsUpdateListener {
     private String TAG = "================";
     private String name = "activity1 ";
@@ -54,6 +56,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     private static final String BY_JOB_SCHEDULER = "by job Scheduler";
     public static final String BY_NOTIFICATION_LISTENER = "by notification listener";
     public static final String BY_NFC = "by nfc";
+    private static final String BY_SYNC_ADAPTER = "by sync adapter";
     private static final String[] MALS = new String[] {
             A_BY_LOCATION,
             B_BY_LOCATION,
@@ -67,6 +70,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
             BY_JOB_SCHEDULER,
             BY_NOTIFICATION_LISTENER,
             BY_NFC,
+            BY_SYNC_ADAPTER,
     };
     private List<MalMethod> mMethods = new ArrayList<MalMethod>();
     private MalAdapter mAdapter;
@@ -204,6 +208,10 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
                 }, 1000);
             } else {
                 cancelAllJobs();
+            }
+        } else if (BY_SYNC_ADAPTER.equals(MALS[index])) {
+            if (isChecked) {
+                SyncUtils.CreateSyncAccount(mContext);
             }
         }
     }
