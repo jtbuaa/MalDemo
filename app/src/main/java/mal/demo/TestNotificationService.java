@@ -11,16 +11,13 @@ public class TestNotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        Activity1.startActivity(getApplicationContext(), Activity1.BY_NOTIFICATION_LISTENER);
         Log.i("zpf", "open"+"-----"+sbn.toString());
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        Log.i("zpf", "shut" + "-----" + sbn.toString());
-    }
-
-    @Override
-    public void onListenerConnected() {
         Activity1.startActivity(getApplicationContext(), Activity1.BY_NOTIFICATION_LISTENER);
+        Log.i("zpf", "shut" + "-----" + sbn.toString());
     }
 }

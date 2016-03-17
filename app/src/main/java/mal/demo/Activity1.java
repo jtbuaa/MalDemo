@@ -7,9 +7,9 @@ import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
+import me.tatarka.support.job.JobInfo;
+import me.tatarka.support.job.JobParameters;
+import me.tatarka.support.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -409,8 +409,7 @@ public class Activity1 extends Activity implements OnAccountsUpdateListener {
     }
 
     public void cancelAllJobs() {
-        JobScheduler tm =
-                (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobScheduler tm = JobScheduler.getInstance(mContext);
         tm.cancelAll();
     }
 
