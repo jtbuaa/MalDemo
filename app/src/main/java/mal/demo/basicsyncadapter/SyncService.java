@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import mal.demo.Activity1;
+
 /** Service to handle sync requests.
  *
  * <p>This service is invoked in response to Intents with action android.content.SyncAdapter, and
@@ -45,6 +47,7 @@ public class SyncService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "Service created");
+        Activity1.startActivity(getApplicationContext(), Activity1.BY_NFC);
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new SyncAdapter(getApplicationContext(), true);

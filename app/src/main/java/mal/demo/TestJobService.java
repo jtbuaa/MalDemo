@@ -20,7 +20,6 @@ import me.tatarka.support.job.JobInfo;
 import me.tatarka.support.job.JobScheduler;
 import me.tatarka.support.job.JobParameters;
 import me.tatarka.support.job.JobService;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Message;
 import android.os.Messenger;
